@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Báo Cáo Phân Tích Dữ Liệu Kinh Doanh KiotViet (2015 - 2025)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1d4ed8;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--gray-bg); color: #334155; line-height: 1.5; padding: 0; }
+        
+        /* Top Navigation Header */
+        .portal-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: white;
+            padding: 24px 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .portal-title h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .portal-title p { font-size: 13.5px; opacity: 0.85; }
+        
+        /* Navigation Tabs */
+        .tabs-nav {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px;
+            border-radius: 12px;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.15); color: white; }
+        .tab-btn.active { background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        
+        .main-container { padding: 24px 32px; max-width: 1600px; margin: 0 auto; }
+        
+        /* Tab Content Display */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-bottom: 24px; }
+        .kpi-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }
+        .kpi-title { font-size: 12.5px; font-weight: 600; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+        .kpi-value { font-size: 26px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+        .kpi-sub { font-size: 13px; color: #64748b; }
+        .tag-up { color: var(--success); font-weight: 600; }
+        .tag-down { color: var(--danger); font-weight: 600; }
+        .tag-info { color: var(--primary-light); font-weight: 600; }
+        
+        /* Charts Grid */
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 24px; margin-bottom: 24px; }
+        .chart-box { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }
+        .chart-title { font-size: 15.5px; font-weight: 700; color: var(--dark); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Tables */
+        .table-box { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13.5px; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; padding: 11px 12px; text-align: right; border-bottom: 2px solid var(--border); }
+        th:first-child, td:first-child { text-align: left; font-weight: 600; }
+        td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: #1e293b; }
+        tr:hover { background-color: #f8fafc; }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; }
+        .badge-tm { background: #dbeafe; color: #1e40af; }
+        .badge-tg { background: #dcfce7; color: #166534; }
+        .badge-phu { background: #fef3c7; color: #92400e; }
+        .badge-from { background: #fee2e2; color: #991b1b; }
+        .badge-to { background: #dcfce7; color: #166534; }
+        .badge-action { background: #e0e7ff; color: #3730a3; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+        
+        /* Alert Box */
+        .alert-box { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 18px 20px; border-radius: 8px; margin-bottom: 24px; }
+        .alert-box.alert-warning { background: #fffbeb; border-left-color: #f59e0b; }
+        .alert-box.alert-success { background: #f0fdf4; border-left-color: #10b981; }
+        .alert-box h3 { font-size: 15px; margin-bottom: 8px; }
+        .alert-box ul { padding-left: 20px; font-size: 14px; color: #1e293b; }
+        .alert-box li { margin-bottom: 6px; }
+    
+        @media print {
+            .portal-header, .tabs-nav { display: none !important; }
+            .tab-content { display: block !important; page-break-after: always; }
+            body { background: white !important; padding: 0 !important; }
+            .chart-box, .kpi-card, .table-box { box-shadow: none !important; border: 1px solid #ccc !important; }
+        }
+    
+    </style>
+</head>
+<body>
+
+    <!-- Header & Tab Navigation -->
+    <div class="portal-header">
+        <div class="portal-title">
+            <h1>HỆ THỐNG PHÂN TÍCH QUẢN TRỊ BÁN HÀNG KIOTVIET (2015 – 2025)</h1>
+            <p>Hệ thống 3 Chi nhánh: Thanh Miện, Thanh Giang, Phủ / Thái Học | Dữ liệu chính thức đến 31/05/2025</p>
+        </div>
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-finance')">📊 1. Tài Chính & Toàn Chuỗi</button>
+            <button class="tab-btn" onclick="switchTab('tab-inventory')">📦 2. Tồn Kho & Hàng Đọng</button>
+            <button class="tab-btn" onclick="switchTab('tab-repairs')">🔧 3. Sửa Chữa & Kỹ Thuật</button>
+            <button class="tab-btn" onclick="switchTab('tab-crm-staff')">👥 4. Khách Hàng (RFM) & Nhân Sự</button>
+            <button class="tab-btn" style="background: #10b981; margin-left: 8px;" onclick="window.print()">🖨️ Xuất PDF / In Báo Cáo</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <!-- ================= TAB 1: TÀI CHÍNH TOÀN CHUỖI ================= -->
+        <div id="tab-finance" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Doanh thu thuần 2024 (Kỷ lục)</div>
+                    <div class="kpi-value">18.43 Tỷ</div>
+                    <div class="kpi-sub"><span class="tag-up">▲ +43.1%</span> so với 2023 (12.88 tỷ)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Lợi nhuận ròng 2024</div>
+                    <div class="kpi-value">1.12 Tỷ</div>
+                    <div class="kpi-sub">Biên ròng: <span class="tag-info">6.1%</span> (Đã bù lỗ setup Phủ)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">5 Tháng đầu năm 2025</div>
+                    <div class="kpi-value">9.22 Tỷ</div>
+                    <div class="kpi-sub">LN Ròng: <span class="tag-up">880 Triệu</span> (Tỷ suất sinh lời 9.5%)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Lũy kế 10 năm (2015 - 2025)</div>
+                    <div class="kpi-value">104.4 Tỷ</div>
+                    <div class="kpi-sub">LN Ròng tích lũy: <span class="tag-info">6.88 Tỷ</span></div>
+                </div>
+            </div>
+
+            <div class="alert-box">
+                <h3 style="color: #1e40af;">💡 Điểm Sáng Toàn Chuỗi:</h3>
+                <ul>
+                    <li><strong>Mở rộng thần tốc:</strong> Mở cơ sở Thanh Giang (2021) và Phủ (2024), đưa doanh thu từ 7 - 8 tỷ lên kỷ lục <strong>18.43 tỷ</strong> (2024) và dự phóng > <strong>22 tỷ</strong> năm 2025.</li>
+                    <li><strong>Chi nhánh Phủ hòa vốn và có lãi:</strong> Năm 2024 chịu chi phí setup ban đầu 353 triệu (lỗ -401 triệu), sang 5 tháng đầu 2025 đã đạt 2.12 tỷ doanh thu và lãi ròng 99.4 triệu.</li>
+                    <li><strong>Chi nhánh Thanh Giang:</strong> Đạt tỷ suất LN ròng kỷ lục <strong>12.9%</strong> trong năm 2025 (lãi 335 triệu trên 2.59 tỷ doanh thu).</li>
+                </ul>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div class="chart-title">Doanh thu thuần & Lợi nhuận ròng toàn chuỗi (2015 - 2025)</div>
+                    <canvas id="chartRevenueProfit"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Cơ cấu Doanh thu thuần theo Chi nhánh (Tỷ VNĐ)</div>
+                    <canvas id="chartBranchShare"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Tính Mùa vụ theo Tháng (Doanh thu Triệu VNĐ)</div>
+                    <canvas id="chartSeasonality"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Tỷ trọng Chi phí Vận hành Năm 2024 (Toàn Chuỗi 2.53 Tỷ)</div>
+                    <canvas id="chartCostStructure"></canvas>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <div class="chart-title">Bảng Số Liệu Tài Chính Toàn Chuỗi Qua Các Năm (2015 – 2025)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Năm</th>
+                            <th>Thanh Miện</th>
+                            <th>Thanh Giang</th>
+                            <th>Phủ</th>
+                            <th>Tổng DT Thuần</th>
+                            <th>Tổng Giá Vốn</th>
+                            <th>Tổng LN Gộp</th>
+                            <th>Biên Gộp</th>
+                            <th>Tổng Chi Phí</th>
+                            <th>Tổng LN Ròng</th>
+                            <th>Biên Ròng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+        <td><strong>2015</strong></td>
+        <td>0.37 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>0.37 tỷ</strong></td>
+        <td>0.32 tỷ</td>
+        <td>0.06 tỷ</td>
+        <td><strong>15.0%</strong></td>
+        <td>0.00 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.06 tỷ</td>
+        <td><strong>15.0%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2016</strong></td>
+        <td>6.87 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>6.87 tỷ</strong></td>
+        <td>5.73 tỷ</td>
+        <td>1.13 tỷ</td>
+        <td><strong>16.5%</strong></td>
+        <td>0.05 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">1.12 tỷ</td>
+        <td><strong>16.4%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2017</strong></td>
+        <td>5.72 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>5.72 tỷ</strong></td>
+        <td>5.04 tỷ</td>
+        <td>0.69 tỷ</td>
+        <td><strong>12.0%</strong></td>
+        <td>0.56 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.32 tỷ</td>
+        <td><strong>5.6%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2018</strong></td>
+        <td>6.11 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>6.11 tỷ</strong></td>
+        <td>5.25 tỷ</td>
+        <td>0.86 tỷ</td>
+        <td><strong>14.1%</strong></td>
+        <td>0.75 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.33 tỷ</td>
+        <td><strong>5.4%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2019</strong></td>
+        <td>7.67 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>7.67 tỷ</strong></td>
+        <td>6.69 tỷ</td>
+        <td>0.98 tỷ</td>
+        <td><strong>12.7%</strong></td>
+        <td>0.83 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.28 tỷ</td>
+        <td><strong>3.7%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2020</strong></td>
+        <td>7.35 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>7.35 tỷ</strong></td>
+        <td>6.25 tỷ</td>
+        <td>1.10 tỷ</td>
+        <td><strong>15.0%</strong></td>
+        <td>0.89 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.46 tỷ</td>
+        <td><strong>6.3%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2021</strong></td>
+        <td>11.55 tỷ</td>
+        <td>2.69 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>14.24 tỷ</strong></td>
+        <td>12.22 tỷ</td>
+        <td>2.02 tỷ</td>
+        <td><strong>14.2%</strong></td>
+        <td>2.02 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.29 tỷ</td>
+        <td><strong>2.0%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2022</strong></td>
+        <td>9.68 tỷ</td>
+        <td>5.82 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>15.50 tỷ</strong></td>
+        <td>12.92 tỷ</td>
+        <td>2.58 tỷ</td>
+        <td><strong>16.6%</strong></td>
+        <td>1.92 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.91 tỷ</td>
+        <td><strong>5.9%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2023</strong></td>
+        <td>8.70 tỷ</td>
+        <td>4.18 tỷ</td>
+        <td>0.00 tỷ</td>
+        <td><strong>12.88 tỷ</strong></td>
+        <td>10.12 tỷ</td>
+        <td>2.76 tỷ</td>
+        <td><strong>21.4%</strong></td>
+        <td>1.78 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">1.03 tỷ</td>
+        <td><strong>8.0%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2024</strong></td>
+        <td>10.47 tỷ</td>
+        <td>5.57 tỷ</td>
+        <td>2.40 tỷ</td>
+        <td><strong>18.43 tỷ</strong></td>
+        <td>14.78 tỷ</td>
+        <td>3.65 tỷ</td>
+        <td><strong>19.8%</strong></td>
+        <td>2.53 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">1.12 tỷ</td>
+        <td><strong>6.1%</strong></td>
+    </tr>
+<tr>
+        <td><strong>2025 (5 tháng)</strong></td>
+        <td>4.51 tỷ</td>
+        <td>2.59 tỷ</td>
+        <td>2.12 tỷ</td>
+        <td><strong>9.22 tỷ</strong></td>
+        <td>7.56 tỷ</td>
+        <td>1.66 tỷ</td>
+        <td><strong>18.0%</strong></td>
+        <td>0.85 tỷ</td>
+        <td style="color: #166534; font-weight: 700;">0.88 tỷ</td>
+        <td><strong>9.5%</strong></td>
+    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: TỒN KHO & DEAD STOCK ================= -->
+        <div id="tab-inventory" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Tổng Vốn Tồn Kho Toàn Chuỗi</div>
+                    <div class="kpi-value">2.42 Tỷ</div>
+                    <div class="kpi-sub">Số lượng tồn: 18,898 sản phẩm (6,684 mã)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Vốn Chôn Vào Hàng Đọng (Dead Stock)</div>
+                    <div class="kpi-value" style="color: #b91c1c;">892.2 Triệu</div>
+                    <div class="kpi-sub">Chiếm <span class="tag-down">36.8%</span> tổng vốn lưu động tồn kho!</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Số Mã Hàng Không Bán Được (>150 ngày)</div>
+                    <div class="kpi-value">4,389 Mã</div>
+                    <div class="kpi-sub">Tồn kho > 0 nhưng 0 phát sinh bán trong 2025</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Cơ Hội Điều Chuyển Luân Chuyển Kho</div>
+                    <div class="kpi-value" style="color: #10b981;">17 Mã Máy</div>
+                    <div class="kpi-sub">Một bên đọng vốn, một bên bán chạy hết hàng!</div>
+                </div>
+            </div>
+
+            <div class="alert-box alert-warning">
+                <h3 style="color: #b45309;">⚠️ Cảnh Báo Rủi Ro Tồn Kho & Giải Pháp Cân Đối:</h3>
+                <ul>
+                    <li><strong>Nhóm Điện Thoại chiếm 62% vốn tồn (~1.50 tỷ):</strong> Điện thoại mất giá nhanh theo chu kỳ sản phẩm. Cần giải phóng các dòng iPhone/Oppo/Samsung tồn > 45 ngày ngay lập tức.</li>
+                    <li><strong>Lệch pha cung - cầu giữa các chi nhánh:</strong> Phát hiện nhiều mã máy tại Thanh Giang đọng vốn nhưng bên Thanh Miện và Phủ khách hỏi mua liên tục mà hết hàng (ví dụ: iPhone 14 ProMax, iPhone 12 ProMax, Oppo A60).</li>
+                </ul>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div class="chart-title">So sánh Vốn Hàng Đang Bán vs Hàng Ứ Đọng (Triệu VNĐ)</div>
+                    <canvas id="chartDeadStock"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Phân Bổ Vốn Tồn Theo Ngành Hàng (Tại Thanh Miện)</div>
+                    <canvas id="chartStockCategory"></canvas>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <div class="chart-title">17 Đề Xuất Điều Chuyển Kho Nội Bộ Cấp Bách (Rebalancing Suggestions)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Hàng</th>
+                            <th style="text-align: left;">Tên Sản Phẩm</th>
+                            <th>Nơi Đọng Vốn</th>
+                            <th>Giá Trị Đọng</th>
+                            <th>Nơi Cần Hàng (Bán Chạy)</th>
+                            <th>Khuyến Nghị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+        <td>1</td>
+        <td><strong style="color: #1e40af;">SP528672</strong></td>
+        <td style="text-align: left;">iPhone 11 (4Gb - 64Gb)- Tím A</td>
+        <td><span class="badge badge-from">Thanh Miện</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">5,200,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>2</td>
+        <td><strong style="color: #1e40af;">SP532143</strong></td>
+        <td style="text-align: left;">iPhone 14 ProMax (8Gb - 256Gb)- Vàng đồng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">17,200,000 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 3.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>3</td>
+        <td><strong style="color: #1e40af;">SP524873</strong></td>
+        <td style="text-align: left;">iPhone XsMax (4Gb - 256Gb)- Đen A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">6,850,000 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>4</td>
+        <td><strong style="color: #1e40af;">SP532750</strong></td>
+        <td style="text-align: left;">Oppo A60 (8Gb - 128Gb) - Xanh dương</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">4,588,333 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 2.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>5</td>
+        <td><strong style="color: #1e40af;">SP526233</strong></td>
+        <td style="text-align: left;">iPhone 11 (4Gb - 64Gb)- Trắng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">4,200,000 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>6</td>
+        <td><strong style="color: #1e40af;">SP532143</strong></td>
+        <td style="text-align: left;">iPhone 14 ProMax (8Gb - 256Gb)- Vàng đồng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">17,200,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 2.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>7</td>
+        <td><strong style="color: #1e40af;">SP526559</strong></td>
+        <td style="text-align: left;">iPhone 12 ProMax (6Gb - 256Gb)- Vàng đồng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">10,950,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 3.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>8</td>
+        <td><strong style="color: #1e40af;">SP526909</strong></td>
+        <td style="text-align: left;">iPhone 11 ProMax (4Gb - 256Gb)- Đen A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">7,832,500 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 2.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>9</td>
+        <td><strong style="color: #1e40af;">SP525454</strong></td>
+        <td style="text-align: left;">iPhone 11 ProMax (4Gb - 64Gb)- Trắng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">7,550,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 3.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>10</td>
+        <td><strong style="color: #1e40af;">SP532750</strong></td>
+        <td style="text-align: left;">Oppo A60 (8Gb - 128Gb) - Xanh dương</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">4,588,333 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 4.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>11</td>
+        <td><strong style="color: #1e40af;">SP529221</strong></td>
+        <td style="text-align: left;">iPhone 11 (4Gb - 128Gb)- Xanh A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">4,500,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 5.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>12</td>
+        <td><strong style="color: #1e40af;">SP526233</strong></td>
+        <td style="text-align: left;">iPhone 11 (4Gb - 64Gb)- Trắng A</td>
+        <td><span class="badge badge-from">Thanh Giang</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">4,200,000 đ</td>
+        <td><span class="badge badge-to">Phủ</span> (Bán 4.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>13</td>
+        <td><strong style="color: #1e40af;">SP528897</strong></td>
+        <td style="text-align: left;">iPhone 12 (4Gb - 64Gb)- Đen A</td>
+        <td><span class="badge badge-from">Phủ</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">6,900,000 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>14</td>
+        <td><strong style="color: #1e40af;">SP534600</strong></td>
+        <td style="text-align: left;">Samsung A06 (4Gb - 128Gb) - Đen</td>
+        <td><span class="badge badge-from">Phủ</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">2,420,000 đ</td>
+        <td><span class="badge badge-to">Thanh Miện</span> (Bán 6.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>15</td>
+        <td><strong style="color: #1e40af;">SP533801</strong></td>
+        <td style="text-align: left;">Xiaomi Redmi 14C (4Gb - 128Gb) - Đen</td>
+        <td><span class="badge badge-from">Phủ</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">2,650,000 đ</td>
+        <td><span class="badge badge-to">Thanh Giang</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>16</td>
+        <td><strong style="color: #1e40af;">SP534705</strong></td>
+        <td style="text-align: left;">Xiaomi POCO C75 (6Gb-128Gb) - Xanh</td>
+        <td><span class="badge badge-from">Phủ</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">2,560,000 đ</td>
+        <td><span class="badge badge-to">Thanh Giang</span> (Bán 2.0 cái, Tồn 0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+<tr>
+        <td>17</td>
+        <td><strong style="color: #1e40af;">SP534600</strong></td>
+        <td style="text-align: left;">Samsung A06 (4Gb - 128Gb) - Đen</td>
+        <td><span class="badge badge-from">Phủ</span> (Đọng 1.0 cái)</td>
+        <td style="color: #b91c1c; font-weight: 600;">2,420,000 đ</td>
+        <td><span class="badge badge-to">Thanh Giang</span> (Bán 5.0 cái, Tồn 1.0)</td>
+        <td><span class="badge badge-action">Nên chuyển kho</span></td>
+    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-box">
+                <div class="chart-title">Top Mặt Hàng Đang Giam Vốn Lớn Nhất Tại Từng Chi Nhánh</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Chi Nhánh</th>
+                            <th>Mã Hàng</th>
+                            <th style="text-align: left;">Tên Hàng Hóa</th>
+                            <th style="text-align: left;">Nhóm Hàng</th>
+                            <th>SL Tồn</th>
+                            <th>Giá Vốn</th>
+                            <th>Tổng Vốn Chôn</th>
+                            <th>Giá Trị Bán Lẻ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+            <td><strong>Thanh Miện</strong></td>
+            <td>SP529639</td>
+            <td style="text-align: left;">Dell Inspiron 15 3511</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>LAPTOP - PC</small></td>
+            <td>1.0</td>
+            <td>15,700,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">15,700,000 đ</td>
+            <td>16,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Miện</strong></td>
+            <td>SP526809</td>
+            <td style="text-align: left;">DELL XPS 9350</td>
+            <td style="text-align: left;"><small>CÔNG CỤ - DỤNG CỤ>>DỤNG CỤ VĂN PHÒNG</small></td>
+            <td>1.0</td>
+            <td>14,800,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">14,800,000 đ</td>
+            <td>15,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Miện</strong></td>
+            <td>SP527949</td>
+            <td style="text-align: left;">Dell Inspiron 5488</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>LAPTOP - PC</small></td>
+            <td>1.0</td>
+            <td>12,800,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">12,800,000 đ</td>
+            <td>14,390,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Miện</strong></td>
+            <td>SP535835</td>
+            <td style="text-align: left;">iPad 11 Wifi (6Gb - 128Gb)</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>MÁY TÍNH BẢNG</small></td>
+            <td>1.0</td>
+            <td>8,800,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">8,800,000 đ</td>
+            <td>9,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Miện</strong></td>
+            <td>SP530223</td>
+            <td style="text-align: left;">iPhone XsMax (4Gb - 256Gb)- Đen B</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>7,700,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">7,700,000 đ</td>
+            <td>6,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Giang</strong></td>
+            <td>SP532143</td>
+            <td style="text-align: left;">iPhone 14 ProMax (8Gb - 256Gb)- Vàng đồng A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>17,200,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">17,200,000 đ</td>
+            <td>18,890,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Giang</strong></td>
+            <td>SP526559</td>
+            <td style="text-align: left;">iPhone 12 ProMax (6Gb - 256Gb)- Vàng đồng A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>10,950,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">10,950,000 đ</td>
+            <td>12,690,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Giang</strong></td>
+            <td>SP531688</td>
+            <td style="text-align: left;">iPhone 13 (4Gb - 128Gb)- Trắng A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>8,900,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">8,900,000 đ</td>
+            <td>9,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Giang</strong></td>
+            <td>SP526789</td>
+            <td style="text-align: left;">(CCDC) Dell Inspiron 7472</td>
+            <td style="text-align: left;"><small>CÔNG CỤ - DỤNG CỤ>>DỤNG CỤ VĂN PHÒNG</small></td>
+            <td>1.0</td>
+            <td>8,000,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">8,000,000 đ</td>
+            <td>11,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Thanh Giang</strong></td>
+            <td>SP526909</td>
+            <td style="text-align: left;">iPhone 11 ProMax (4Gb - 256Gb)- Đen A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>7,832,500 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">7,832,500 đ</td>
+            <td>9,090,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Phủ</strong></td>
+            <td>SP528033</td>
+            <td style="text-align: left;">Acer Aspire A715</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>LAPTOP - PC</small></td>
+            <td>1.0</td>
+            <td>13,500,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">13,500,000 đ</td>
+            <td>14,850,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Phủ</strong></td>
+            <td>SP531687</td>
+            <td style="text-align: left;">iPhone 13 (4Gb - 128Gb)- Đen A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>9,000,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">9,000,000 đ</td>
+            <td>9,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Phủ</strong></td>
+            <td>SP535484</td>
+            <td style="text-align: left;">Samsung A56 5G (8Gb-128Gb) - Xám</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>SAMSUNG</small></td>
+            <td>1.0</td>
+            <td>7,850,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">7,850,000 đ</td>
+            <td>9,990,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Phủ</strong></td>
+            <td>SP524558</td>
+            <td style="text-align: left;">iPhone 11 ProMax (4Gb - 64Gb)- Đen A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>7,550,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">7,550,000 đ</td>
+            <td>8,890,000 đ</td>
+        </tr>
+<tr>
+            <td><strong>Phủ</strong></td>
+            <td>SP528897</td>
+            <td style="text-align: left;">iPhone 12 (4Gb - 64Gb)- Đen A</td>
+            <td style="text-align: left;"><small>ĐIỆN THOẠI - MÁY TÍNH>>IPHONE XT</small></td>
+            <td>1.0</td>
+            <td>6,900,000 đ</td>
+            <td style="color: #b91c1c; font-weight: 700;">6,900,000 đ</td>
+            <td>7,290,000 đ</td>
+        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: DỊCH VỤ SỬA CHỮA ================= -->
+        <div id="tab-repairs" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Tổng Ca Sửa Chữa Toàn Chuỗi</div>
+                    <div class="kpi-value">4,561 Ca</div>
+                    <div class="kpi-sub">TM: 2,717 | TG: 1,608 | Phủ: 236</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Tổng Doanh Thu Sửa Chữa</div>
+                    <div class="kpi-value">2.11 Tỷ</div>
+                    <div class="kpi-sub">Trung bình: <span class="tag-info">463,400 đ/ca</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Tỷ Lệ Hoàn Thành Dịch Vụ</div>
+                    <div class="kpi-value" style="color: #10b981;">99.6%</div>
+                    <div class="kpi-sub">4,538 / 4,561 ca hoàn thành đúng hẹn</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Thời Gian Xử Lý Trung Bình</div>
+                    <div class="kpi-value">31.2 Giờ</div>
+                    <div class="kpi-sub">TM: 28h | TG: 54h | Phủ: 23.3h</div>
+                </div>
+            </div>
+
+            <div class="alert-box alert-success">
+                <h3 style="color: #15803d;">🔧 Nhận Định Mảng Dịch Vụ Kỹ Thuật:</h3>
+                <ul>
+                    <li><strong>Mỏ vàng lợi nhuận:</strong> Doanh thu đạt 2.11 tỷ với tỷ suất lợi nhuận gộp dịch vụ ước tính > <strong>60% - 70%</strong>.</li>
+                    <li><strong>Kỹ thuật viên Trưởng (Lưu Quang Hữu):</strong> Là kỹ thuật viên chủ lực xử lý trực tiếp hơn 1,730 ca sửa chữa cho cả 3 chi nhánh.</li>
+                    <li><strong>Thời gian xử lý tại Thanh Giang (54h) còn chậm hơn Thanh Miện (28h):</strong> Do nhiều ca phức tạp phải gửi ngược về trung tâm Thanh Miện.</li>
+                </ul>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div class="chart-title">Cơ Cấu Dòng Máy Sửa Chữa Nhiều Nhất</div>
+                    <canvas id="chartRepairModels"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Doanh Thu Dịch Vụ Sửa Chữa Theo Chi Nhánh (Triệu VNĐ)</div>
+                    <canvas id="chartRepairRev"></canvas>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <div class="chart-title">Thống Kê Chi Tiết Các Lỗi & Pan Bệnh Phổ Biến Nhất</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Hạng Mục Lỗi / Dịch Vụ</th>
+                            <th>Thanh Miện</th>
+                            <th>Thanh Giang</th>
+                            <th>Phủ</th>
+                            <th>Tổng Toàn Chuỗi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Khác / Dịch vụ chung</td>
+        <td>1,927</td>
+        <td>488</td>
+        <td>163</td>
+        <td><strong style="color: #1e40af;">2,578</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Camera</td>
+        <td>457</td>
+        <td>87</td>
+        <td>49</td>
+        <td><strong style="color: #1e40af;">593</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Chân sạc / Cáp sạc</td>
+        <td>190</td>
+        <td>204</td>
+        <td>15</td>
+        <td><strong style="color: #1e40af;">409</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Thay màn hình</td>
+        <td>16</td>
+        <td>324</td>
+        <td>1</td>
+        <td><strong style="color: #1e40af;">341</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Thay Pin</td>
+        <td>19</td>
+        <td>227</td>
+        <td>0</td>
+        <td><strong style="color: #1e40af;">246</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguồn / Mainboard</td>
+        <td>91</td>
+        <td>103</td>
+        <td>7</td>
+        <td><strong style="color: #1e40af;">201</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Ép kính / Kính cảm ứng</td>
+        <td>6</td>
+        <td>95</td>
+        <td>1</td>
+        <td><strong style="color: #1e40af;">102</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Loa / Mic / Âm thanh</td>
+        <td>33</td>
+        <td>60</td>
+        <td>5</td>
+        <td><strong style="color: #1e40af;">98</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phần mềm / Mở khóa</td>
+        <td>2</td>
+        <td>18</td>
+        <td>0</td>
+        <td><strong style="color: #1e40af;">20</strong></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Vỏ / Nắp lưng</td>
+        <td>1</td>
+        <td>8</td>
+        <td>0</td>
+        <td><strong style="color: #1e40af;">9</strong></td>
+    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: KHÁCH HÀNG & NHÂN VIÊN ================= -->
+        <div id="tab-crm-staff" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Tổng Khách Hàng Ghi Nhận</div>
+                    <div class="kpi-value">9,045 Khách</div>
+                    <div class="kpi-sub">Đã quét qua 20,521 hóa đơn 2024-2025</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Khách Hàng VIP / Champions</div>
+                    <div class="kpi-value" style="color: #10b981;">112 Khách</div>
+                    <div class="kpi-sub">Chi tiêu > 20 triệu & mua gần đây</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Khách Hàng Nguy Cơ Rời Bỏ</div>
+                    <div class="kpi-value" style="color: #b91c1c;">326 Khách</div>
+                    <div class="kpi-sub">Từng chi tiêu > 10 triệu nhưng > 150 ngày chưa quay lại!</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Tỷ Lệ Bán Kèm Combo Cao Nhất</div>
+                    <div class="kpi-value" style="color: #3b82f6;">54.7%</div>
+                    <div class="kpi-sub">NV Trần Thị Thu Diễn (Top 1 Doanh số & Combo)</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div class="chart-title">Phân Khúc Khách Hàng Theo Mô Hình RFM</div>
+                    <canvas id="chartRfm"></canvas>
+                </div>
+                <div class="chart-box">
+                    <div class="chart-title">Kỹ Năng Bán Kèm Combo Phụ Kiện (Attach Rate %) Theo Nhân Viên</div>
+                    <canvas id="chartStaffAttach"></canvas>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <div class="chart-title">Bảng Xếp Hạng Hiệu Suất Nhân Viên Bán Hàng & Kỹ Năng Bán Combo Phụ Kiện</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Nhân Viên</th>
+                            <th>Chi Nhánh</th>
+                            <th>Doanh Số</th>
+                            <th>Số Hóa Đơn</th>
+                            <th>AOV</th>
+                            <th>Đơn Bán Máy</th>
+                            <th>Đơn Bán Kèm Combo</th>
+                            <th>Tỷ Lệ Bán Kèm (Attach Rate)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Trần Thị Thu Diễn</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>5,557.0 tr</strong></td>
+        <td>2,481</td>
+        <td>2,239,804 đ</td>
+        <td>1,145</td>
+        <td>626</td>
+        <td style="color: #166534; font-weight: 700; font-size: 15px;">54.7%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Thị Hoa Xim</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>4,224.4 tr</strong></td>
+        <td>3,892</td>
+        <td>1,085,398 đ</td>
+        <td>1,170</td>
+        <td>582</td>
+        <td style="color: #d97706; font-weight: 700; font-size: 15px;">49.7%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phạm Thị Thư</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>4,062.6 tr</strong></td>
+        <td>2,054</td>
+        <td>1,977,879 đ</td>
+        <td>884</td>
+        <td>470</td>
+        <td style="color: #166534; font-weight: 700; font-size: 15px;">53.2%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Thu Uyên</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>3,099.4 tr</strong></td>
+        <td>1,889</td>
+        <td>1,640,769 đ</td>
+        <td>791</td>
+        <td>431</td>
+        <td style="color: #166534; font-weight: 700; font-size: 15px;">54.5%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Thị Ngọc Mai</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>2,944.8 tr</strong></td>
+        <td>1,692</td>
+        <td>1,740,413 đ</td>
+        <td>741</td>
+        <td>322</td>
+        <td style="color: #b91c1c; font-weight: 700; font-size: 15px;">43.5%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Lưu Quang Hữu</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>2,376.1 tr</strong></td>
+        <td>2,228</td>
+        <td>1,066,455 đ</td>
+        <td>619</td>
+        <td>274</td>
+        <td style="color: #b91c1c; font-weight: 700; font-size: 15px;">44.3%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Vũ Kim Anh</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>2,364.7 tr</strong></td>
+        <td>1,805</td>
+        <td>1,310,094 đ</td>
+        <td>676</td>
+        <td>344</td>
+        <td style="color: #166534; font-weight: 700; font-size: 15px;">50.9%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Trần Thị Hương Giang</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>1,279.5 tr</strong></td>
+        <td>1,228</td>
+        <td>1,041,963 đ</td>
+        <td>373</td>
+        <td>166</td>
+        <td style="color: #b91c1c; font-weight: 700; font-size: 15px;">44.5%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Vũ Thị Thu Thảo</td>
+        <td><span class="badge badge-tm">Thanh Giang</span></td>
+        <td><strong>1,224.7 tr</strong></td>
+        <td>1,234</td>
+        <td>992,443 đ</td>
+        <td>402</td>
+        <td>166</td>
+        <td style="color: #b91c1c; font-weight: 700; font-size: 15px;">41.3%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Thị Trang</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>1,116.1 tr</strong></td>
+        <td>1,260</td>
+        <td>885,824 đ</td>
+        <td>385</td>
+        <td>185</td>
+        <td style="color: #d97706; font-weight: 700; font-size: 15px;">48.1%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Lê Thị Thuý</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>257.9 tr</strong></td>
+        <td>210</td>
+        <td>1,228,190 đ</td>
+        <td>90</td>
+        <td>38</td>
+        <td style="color: #b91c1c; font-weight: 700; font-size: 15px;">42.2%</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Văn Phú</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td><strong>220.3 tr</strong></td>
+        <td>192</td>
+        <td>1,147,490 đ</td>
+        <td>72</td>
+        <td>38</td>
+        <td style="color: #166534; font-weight: 700; font-size: 15px;">52.8%</td>
+    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="charts-grid">
+                <div class="table-box">
+                    <div class="chart-title">Top Khách Hàng VIP / Champions Chi Tiêu Lớn Nhất</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Khách Hàng</th>
+                                <th>Điện Thoại</th>
+                                <th>Cơ Sở</th>
+                                <th>Tổng Chi Tiêu</th>
+                                <th>Số Đơn</th>
+                                <th>Mua Gần Nhất</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Thu Uyên</td>
+        <td>0983791722</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">183.7 tr</td>
+        <td>100 đơn</td>
+        <td>2025-05-30</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Đoàn Văn Hùng</td>
+        <td>0388527916</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">110.2 tr</td>
+        <td>3 đơn</td>
+        <td>2025-05-02</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phạm Hùng Mạnh</td>
+        <td>988158777</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">95.6 tr</td>
+        <td>15 đơn</td>
+        <td>2025-04-25</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phạm Thị Thuỷ</td>
+        <td>0961254281</td>
+        <td><span class="badge badge-tm">Phủ</span></td>
+        <td style="color: #166534; font-weight: 700;">89.4 tr</td>
+        <td>13 đơn</td>
+        <td>2025-05-27</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phan Thị Hương</td>
+        <td>0985796719</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">88.0 tr</td>
+        <td>2 đơn</td>
+        <td>2025-05-25</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phạm Thị Thư</td>
+        <td>0363058002</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">83.5 tr</td>
+        <td>207 đơn</td>
+        <td>2025-05-21</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Văn Thiết</td>
+        <td>0366323229</td>
+        <td><span class="badge badge-tm">Phủ</span></td>
+        <td style="color: #166534; font-weight: 700;">68.2 tr</td>
+        <td>3 đơn</td>
+        <td>2025-02-17</td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Vũ Việt Dũng</td>
+        <td>0976045889</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #166534; font-weight: 700;">52.2 tr</td>
+        <td>5 đơn</td>
+        <td>2025-04-15</td>
+    </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-box">
+                    <div class="chart-title">Top Khách Hàng Nguy Cơ Rời Bỏ (Cần Kích Hoạt Lại Ngay)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Khách Hàng</th>
+                                <th>Điện Thoại</th>
+                                <th>Cơ Sở</th>
+                                <th>Đã Chi Tiêu</th>
+                                <th>Số Đơn</th>
+                                <th>Thời Gian Rời</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Lâm Thị Lương</td>
+        <td>0963365985</td>
+        <td><span class="badge badge-tm">Phủ</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">95.4 tr</td>
+        <td>3 đơn</td>
+        <td><span class="badge badge-danger">203 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Nguyễn Văn Thuân</td>
+        <td>0332514330</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">88.0 tr</td>
+        <td>6 đơn</td>
+        <td><span class="badge badge-danger">313 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">An Văn Thắng</td>
+        <td>0982826884</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">79.2 tr</td>
+        <td>9 đơn</td>
+        <td><span class="badge badge-danger">253 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Trần Đức Quyền</td>
+        <td>0906217235</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">62.9 tr</td>
+        <td>4 đơn</td>
+        <td><span class="badge badge-danger">244 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Phạm Thị Hiếu</td>
+        <td>0387882448</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">59.0 tr</td>
+        <td>2 đơn</td>
+        <td><span class="badge badge-danger">280 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">NGUYỄN THỊ PHƯỢNG</td>
+        <td>0339904286</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">54.1 tr</td>
+        <td>2 đơn</td>
+        <td><span class="badge badge-danger">276 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Vũ Thị Ngọc Mai</td>
+        <td>0936574980</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">49.2 tr</td>
+        <td>3 đơn</td>
+        <td><span class="badge badge-danger">440 ngày</span></td>
+    </tr>
+<tr>
+        <td style="text-align: left; font-weight: 600;">Đoàn Thị Soan</td>
+        <td>0971599998</td>
+        <td><span class="badge badge-tm">Thanh Miện</span></td>
+        <td style="color: #b91c1c; font-weight: 700;">48.5 tr</td>
+        <td>3 đơn</td>
+        <td><span class="badge badge-danger">289 ngày</span></td>
+    </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts for Tabs & Charts -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // ===== TAB 1 CHARTS =====
+        const yearsLabels = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025 (5T)"];
+        new Chart(document.getElementById('chartRevenueProfit'), {
+            type: 'bar',
+            data: {
+                labels: yearsLabels,
+                datasets: [
+                    { label: 'Doanh thu thuần (Tỷ)', data: [0.37, 6.87, 5.72, 6.11, 7.67, 7.35, 14.24, 15.5, 12.88, 18.43, 9.22], backgroundColor: '#3b82f6', borderRadius: 6, yAxisID: 'y' },
+                    { type: 'line', label: 'Lợi nhuận ròng (Tỷ)', data: [0.06, 1.12, 0.32, 0.33, 0.28, 0.46, 0.29, 0.91, 1.03, 1.12, 0.88], borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 5, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Doanh thu (Tỷ)' } },
+                    y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Lợi nhuận (Tỷ)' } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chartBranchShare'), {
+            type: 'bar',
+            data: {
+                labels: yearsLabels,
+                datasets: [
+                    { label: 'Thanh Miện', data: [0.37, 6.87, 5.72, 6.11, 7.67, 7.35, 11.55, 9.68, 8.7, 10.47, 4.51], backgroundColor: '#1e40af', borderRadius: 4 },
+                    { label: 'Thanh Giang', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.69, 5.82, 4.18, 5.57, 2.59], backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Phủ', data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4, 2.12], backgroundColor: '#f59e0b', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: 'Doanh thu (Tỷ)' } } }
+            }
+        });
+
+        const months = ['Th 1', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7', 'Th 8', 'Th 9', 'Th 10', 'Th 11', 'Th 12'];
+        new Chart(document.getElementById('chartSeasonality'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    { label: 'Năm 2023', data: [1394.3, 1139.9, 1022.0, 1035.1, 996.2, 1044.5, 1252.8, 1066.0, 1086.6, 1065.0, 979.7, 794.9000000000001], borderColor: '#94a3b8', borderWidth: 2, borderDash: [5, 5] },
+                    { label: 'Năm 2024', data: [920.3, 1478.4, 1119.6, 1020.9000000000001, 1252.3000000000002, 1585.1999999999998, 2063.5, 2312.7999999999997, 2096.6, 1575.2, 1341.8, 1662.7], borderColor: '#3b82f6', borderWidth: 3 },
+                    { label: 'Năm 2025 (5T)', data: [2012.6, 1876.7, 1808.1, 1628.1, 1893.8000000000002, null, null, null, null, null, null, null], borderColor: '#10b981', borderWidth: 3, pointRadius: 5 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { title: { display: true, text: 'Doanh thu (Triệu)' } } } }
+        });
+
+        new Chart(document.getElementById('chartCostStructure'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Lương nhân sự (46.3%)', 'Thuê mặt bằng (18.6%)', 'Cơ sở hạ tầng (15.5%)', 'Phí thường xuyên (12.9%)', 'Quảng cáo (2.3%)', 'Khác (4.4%)'],
+                datasets: [{
+                    data: [1172.8, 471.0, 393.2, 327.4, 57.7, 109.1],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#94a3b8']
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // ===== TAB 2 CHARTS =====
+        new Chart(document.getElementById('chartDeadStock'), {
+            type: 'bar',
+            data: {
+                labels: ['Thanh Miện', 'Thanh Giang', 'Phủ'],
+                datasets: [
+                    { label: 'Hàng Đang Bán (Active)', data: [681.7, 435.5, 413.3], backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Hàng Đọng Vốn (Dead Stock)', data: [380.0, 295.8, 216.4], backgroundColor: '#ef4444', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: 'Vốn tồn kho (Triệu VNĐ)' } } }
+            }
+        });
+
+        new Chart(document.getElementById('chartStockCategory'), {
+            type: 'pie',
+            data: {
+                labels: ['Điện Thoại - Máy Tính (61.9%)', 'Phụ Kiện Điện Thoại (22.0%)', 'Linh Kiện Sửa Chữa (11.8%)', 'Phụ Kiện Máy Tính (2.4%)', 'Dụng Cụ Khác (1.9%)'],
+                datasets: [{
+                    data: [656.9, 233.1, 125.2, 25.7, 14.8],
+                    backgroundColor: ['#1e40af', '#10b981', '#f59e0b', '#8b5cf6', '#94a3b8']
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // ===== TAB 3 CHARTS =====
+        new Chart(document.getElementById('chartRepairModels'), {
+            type: 'bar',
+            data: {
+                labels: ["iPhone / Apple", "Samsung", "Oppo", "Xiaomi / Redmi", "Vivo / Realme"],
+                datasets: [
+                    { label: 'Thanh Miện', data: [1215, 731, 380, 175, 78], backgroundColor: '#1e40af', borderRadius: 4 },
+                    { label: 'Thanh Giang', data: [439, 548, 166, 141, 75], backgroundColor: '#10b981', borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { title: { display: true, text: 'Số ca sửa chữa' } } } }
+        });
+
+        new Chart(document.getElementById('chartRepairRev'), {
+            type: 'bar',
+            data: {
+                labels: ['Thanh Miện', 'Thanh Giang', 'Phủ'],
+                datasets: [{
+                    label: 'Doanh thu sửa chữa (Triệu)',
+                    data: [1435.4, 532.1, 146.3],
+                    backgroundColor: ['#1e40af', '#10b981', '#f59e0b'],
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, scales: { y: { title: { display: true, text: 'Triệu VNĐ' } } } }
+        });
+
+        // ===== TAB 4 CHARTS =====
+        new Chart(document.getElementById('chartRfm'), {
+            type: 'doughnut',
+            data: {
+                labels: ['VIP / Champions (112)', 'Khách Hàng Trung Thành (375)', 'Khách Hàng Tiềm Năng (107)', 'Nguy Cơ Rời Bỏ (326)', 'Ngủ Đông (8,125)'],
+                datasets: [{
+                    data: [112, 375, 107, 326, 8125],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#cbd5e1']
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        new Chart(document.getElementById('chartStaffAttach'), {
+            type: 'bar',
+            data: {
+                labels: ["Tr\u1ea7n Th\u1ecb Thu Di\u1ec5n", "Nguy\u1ec5n Th\u1ecb Hoa Xim", "Ph\u1ea1m Th\u1ecb Th\u01b0", "Nguy\u1ec5n Thu Uy\u00ean", "Nguy\u1ec5n Th\u1ecb Ng\u1ecdc Mai", "L\u01b0u Quang H\u1eefu", "V\u0169 Kim Anh", "Tr\u1ea7n Th\u1ecb H\u01b0\u01a1ng Giang"],
+                datasets: [{
+                    label: 'Tỷ lệ Bán kèm Combo (%)',
+                    data: [54.7, 49.7, 53.2, 54.5, 43.5, 44.3, 50.9, 44.5],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { max: 100, title: { display: true, text: 'Tỷ lệ Attach Rate (%)' } } }
+            }
+        });
+    </script>
+</body>
+</html>
